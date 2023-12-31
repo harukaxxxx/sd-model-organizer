@@ -350,12 +350,17 @@ def records_cards(records: List) -> str:
         download_url_check = record.download_url.startswith("http://192.168.1.200/sd-db")
         if download_url_check:
             download_path = record.download_url.replace('http://192.168.1.200/sd-db', r'\\MWDSplus\web\sd-webui-database')
-            download_url_check_string = "✅" if os.path.exists(download_path) else "❎ "
+            download_url_check_string = "✅" if os.path.exists(download_path) else "❎"
+        else:
+            download_url_check_string = "❎"
+
         preview_url_check = record.preview_url.startswith("http://sd-db.makinoworks.com")
         if preview_url_check:
             preview_path = record.preview_url.replace('http://sd-db.makinoworks.com', r'\\MWDSplus\web\sd-webui-database')
-            preview_url_check_string = "✅" if os.path.exists(preview_path) else "❎ "
-        url_check = f'{download_url_check_string}{preview_url_check_string}' if download_url_check else ""
+            preview_url_check_string = "✅" if os.path.exists(preview_path) else "❎"
+        else:
+            preview_url_check_string = "❎"
+        url_check = f'{download_url_check_string}{preview_url_check_string} ' if download_url_check else ""
 
         content += f'<div class="mo-card-text-left"><span class="mo-badge {_model_type_css_class(record.model_type)}"' \
                    f'>{url_check}{record.model_type.value}</span></div>'
