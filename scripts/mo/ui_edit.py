@@ -32,7 +32,7 @@ def is_filename_with_extension(download_filename):
 def _on_description_output_changed(record_data, name: str, model_type_value: str, download_url: str, url: str,
                                    download_path: str, download_filename: str, rename_filename: bool, download_subdir: str, preview_url: str,
                                    description_output: str, positive_prompts: str, negative_prompts: str,
-                                   groups, back_token: str, sha256_state, location, current_location):
+                                   groups, back_token: str, sha256_state, location, current_location, promptweight: float):
     errors = []
     if is_blank(name):
         errors.append('Name field is empty.')
@@ -136,7 +136,8 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             sha256_hash=sha256_hash,
             md5_hash='',
             location=location,
-            created_at=created_at
+            created_at=created_at,
+            weight=promptweight
         )
 
         logger.info(f'record to save: {record}')
@@ -212,9 +213,11 @@ def _on_id_changed(record_data):
 
     rename_filename_checkbox = ''
 
+    weight = 1 if record is None else record.weight
+
     return [title, name, model_type, download_url, preview_url, url, download_path, download_filename, download_subdir,
             description, positive_prompts, negative_prompts, groups, available_groups, gr.HTML.update(visible=False),
-            sha256, location, _get_bind_location_dropdown_update(model_type, location), rename_filename_checkbox, location]
+            sha256, location, _get_bind_location_dropdown_update(model_type, location), rename_filename_checkbox, location, weight]
 
 
 def _get_bind_location_dropdown_update(model_type_value, current_location: str):
@@ -246,6 +249,7 @@ def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     chosen = 'None'
     if current_location:
         model_local_path = current_location.replace(env.get_model_path(model_type) + '/', '')
+        model_local_path = model_local_path.replace(lookup_dir, '') 
         if model_local_path in choices:
             chosen = model_local_path
 
@@ -301,6 +305,11 @@ def _on_local_bind_change(model_file_name, model_type_value):
         return gr.Textbox.update(full_path)
     else:
         return gr.Textbox.update('')
+
+def _on_download_filename_change(rename_filename_checkbox, location, download_filename, current_location):
+    if rename_filename_checkbox:
+        return _on_rename_filename_checkbox_change(rename_filename_checkbox, location, download_filename, current_location)
+    return current_location
 
 def _on_rename_filename_checkbox_change(rename_filename_checkbox, location, download_filename, current_location):
 
@@ -366,7 +375,8 @@ def edit_ui_block():
             name_widget = gr.Textbox(label='Name:',
                                      value='',
                                      max_lines=1,
-                                     info='Model title to display (Required)')
+                                     info='Model title to display (Required)',
+                                     elem_id='model_organizer_edit_name')
             model_type_widget = gr.Dropdown(
                 [model_type.value for model_type in ModelType],
                 value='',
@@ -412,7 +422,8 @@ def edit_ui_block():
 
             location_bind_widget = gr.Dropdown(label='Bind with local file',
                                                info='Choose a local file to associate this record with.',
-                                               interactive=True)
+                                               interactive=True,
+                                               elem_id='model_organizer_add_bind')
 
             with gr.Accordion(label='Download options', open=False):
                 download_path_widget = gr.Textbox(label='Download Path:',
@@ -442,6 +453,12 @@ def edit_ui_block():
                                                      value='',
                                                      max_lines=20,
                                                      info='Model positive prompts (Optional)')
+                prompt_weight_slider = gr.Slider(label='Preferred weight', 
+                                                     info="Default value", 
+                                                     minimum=0.0, 
+                                                     maximum=2.0, 
+                                                     step=0.01,
+                                                     elem_id='mo-edit-prompt-weight')
                 negative_prompts_widget = gr.Textbox(label='Negative prompts:',
                                                      value='',
                                                      max_lines=20,
@@ -470,7 +487,7 @@ def edit_ui_block():
                                              download_path_widget, download_filename_widget, rename_filename_checkbox_widget, download_subdir_widget,
                                              preview_url_widget, description_output_widget, positive_prompts_widget,
                                              negative_prompts_widget, groups_widget, edit_back_box,
-                                             sha256_preload_state, location_widget, current_location_widget],
+                                             sha256_preload_state, location_widget, current_location_widget, prompt_weight_slider],
                                      outputs=[error_widget, edit_back_box])
 
     edit_id_box.change(_on_id_changed,
@@ -479,8 +496,12 @@ def edit_ui_block():
                                 preview_url_widget, url_widget, download_path_widget, download_filename_widget,
                                 download_subdir_widget, description_input_widget, positive_prompts_widget,
                                 negative_prompts_widget, groups_widget, available_groups_state, error_widget,
-                                sha256_preload_state, location_widget, location_bind_widget, rename_filename_checkbox_widget, current_location_widget]
+                                sha256_preload_state, location_widget, location_bind_widget, rename_filename_checkbox_widget, current_location_widget, prompt_weight_slider]
                        )
+
+    download_filename_widget.change(_on_download_filename_change,
+                                    inputs=[rename_filename_checkbox_widget, location_widget, download_filename_widget, current_location_widget],
+                                    outputs=location_widget)
 
     rename_filename_checkbox_widget.change(_on_rename_filename_checkbox_change,
                                            inputs=[rename_filename_checkbox_widget, location_widget, download_filename_widget, current_location_widget],

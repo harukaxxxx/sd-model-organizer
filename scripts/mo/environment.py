@@ -3,8 +3,8 @@ import logging
 import os.path
 from typing import Callable
 
-from scripts.mo.models import ModelType, Record
 from scripts.mo.data.storage import Storage
+from scripts.mo.models import ModelType
 
 STORAGE_SQLITE = 'SQLite'
 STORAGE_FIREBASE = 'Firebase'
@@ -62,6 +62,9 @@ class Environment:
     download_preview: Callable[[], bool]
     resize_preview: Callable[[], bool]
     nsfw_blur: Callable[[], bool]
+    prefill_pos_prompt: Callable[[], bool]
+    prefill_neg_prompt: Callable[[], bool]
+    autobind_file: Callable[[], bool]
     model_path: Callable[[], str]
     vae_path: Callable[[], str]
     lora_path: Callable[[], str]
@@ -73,6 +76,7 @@ class Environment:
     card_width: Callable[[], str]
     card_height: Callable[[], str]
     is_debug_mode_enabled: Callable[[], bool]
+    api_key: Callable[[], str]
 
     def is_storage_initialized(self) -> bool:
         return hasattr(self, 'storage')
