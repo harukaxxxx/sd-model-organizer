@@ -9,27 +9,27 @@ def on_id_changed(record_id):
         record = env.storage.get_record_by_id(record_id)
         if record is None:
             return [
-                gr.HTML.update(value=f'Record with id {record_id} was not found.'),
-                gr.HTML.update(visible=False),
-                gr.Textbox.update(value=''),
-                gr.Button.update(visible=False),
-                gr.Button.update(visible=False)
+                gr.HTML(value=f'Record with id {record_id} was not found.'),
+                gr.HTML(visible=False),
+                gr.Textbox(value=''),
+                gr.Button(visible=False),
+                gr.Button(visible=False)
             ]
         else:
             return [
-                gr.HTML.update(value=styled.record_details(record)),
-                gr.HTML.update(visible=bool(record.description)),
-                gr.Textbox.update(value=record.description),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=record.is_download_possible())
+                gr.HTML(value=styled.record_details(record)),
+                gr.HTML(visible=bool(record.description)),
+                gr.Textbox(value=record.description),
+                gr.Button(visible=True),
+                gr.Button(visible=record.is_download_possible())
             ]
 
     return [
-        gr.HTML.update(value=f'No record id passed.'),
-        gr.HTML.update(visible=False),
-        gr.Textbox.update(value=''),
-        gr.Button.update(visible=False),
-        gr.Button.update(visible=False)
+        gr.HTML(value=f'No record id passed.'),
+        gr.HTML(visible=False),
+        gr.Textbox(value=''),
+        gr.Button(visible=False),
+        gr.Button(visible=False)
     ]
 
 

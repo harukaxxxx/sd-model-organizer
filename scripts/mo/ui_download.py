@@ -21,11 +21,11 @@ def _build_widget_update(progress_update=None, status_message=None, is_start_but
                          is_cancel_button_visible=None,
                          is_back_button_visible=None):
     upd = [
-        gr.HTML.update() if status_message is None else gr.HTML.update(value=status_message, visible=True),
-        gr.Button.update() if is_start_button_visible is None else gr.Button.update(visible=is_start_button_visible),
-        gr.Button.update() if is_cancel_button_visible is None else gr.Button.update(visible=is_cancel_button_visible),
-        gr.Button.update() if is_back_button_visible is None else gr.Button.update(visible=is_back_button_visible),
-        gr.Textbox.update() if progress_update is None else gr.Textbox.update(value=progress_update)
+        gr.HTML() if status_message is None else gr.HTML(value=status_message, visible=True),
+        gr.Button() if is_start_button_visible is None else gr.Button(visible=is_start_button_visible),
+        gr.Button() if is_cancel_button_visible is None else gr.Button(visible=is_cancel_button_visible),
+        gr.Button() if is_back_button_visible is None else gr.Button(visible=is_back_button_visible),
+        gr.Textbox() if progress_update is None else gr.Textbox(value=progress_update)
     ]
     return upd
 
@@ -195,12 +195,12 @@ def _on_id_change(data):
 
     if not data:
         return [
-            gr.HTML.update(),
+            gr.HTML(),
             [],
-            gr.Button.update(visible=False),  # start_button
-            gr.Button.update(visible=False),  # cancel_button
-            gr.Button.update(visible=True),  # back_button
-            gr.HTML.update(value=styled.alert_warning('Nothing passed to download.'),
+            gr.Button(visible=False),  # start_button
+            gr.Button(visible=False),  # cancel_button
+            gr.Button(visible=True),  # back_button
+            gr.HTML(value=styled.alert_warning('Nothing passed to download.'),
                            visible=True)  # status_message_widget
         ]
 
@@ -220,12 +220,12 @@ def _on_id_change(data):
         records.extend(load_records_and_filter(state, False))
 
     return [
-        gr.HTML.update(value=styled.download_cards(records, nav.generate_ui_token())),
+        gr.HTML(value=styled.download_cards(records, nav.generate_ui_token())),
         records,
-        gr.Button.update(visible=True),  # start_button
-        gr.Button.update(visible=False),  # cancel_button
-        gr.Button.update(visible=True),  # back_button
-        gr.HTML.update(visible=False)  # status_message_widget
+        gr.Button(visible=True),  # start_button
+        gr.Button(visible=False),  # cancel_button
+        gr.Button(visible=True),  # back_button
+        gr.HTML(visible=False)  # status_message_widget
     ]
 
 

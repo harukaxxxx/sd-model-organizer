@@ -21,21 +21,21 @@ def on_json_box_change(json_state, home_refresh_token):
         home_refresh_token = nav.generate_ui_token()
 
     return [
-        gr.Column.update(visible=is_home_visible),
-        gr.Column.update(visible=state['is_details_visible']),
-        gr.Column.update(visible=state['is_edit_visible']),
-        gr.Column.update(visible=state['is_remove_visible']),
-        gr.Column.update(visible=state['is_download_visible']),
-        gr.Column.update(visible=state['is_import_export_visible']),
-        gr.Column.update(visible=state['is_debug_visible']),
+        gr.Column(visible=is_home_visible),
+        gr.Column(visible=state['is_details_visible']),
+        gr.Column(visible=state['is_edit_visible']),
+        gr.Column(visible=state['is_remove_visible']),
+        gr.Column(visible=state['is_download_visible']),
+        gr.Column(visible=state['is_import_export_visible']),
+        gr.Column(visible=state['is_debug_visible']),
 
-        gr.Textbox.update(value=home_refresh_token),
-        gr.Textbox.update(value=state['details_record_id']),
-        gr.Textbox.update(value=state['edit_data']),
-        gr.Textbox.update(value=state['remove_record_id']),
-        gr.Textbox.update(value=state['download_info']),
-        gr.Textbox.update(value=state['filter_state']),
-        gr.Textbox.update(value=get_json_record_data(state['details_record_info_id']))
+        gr.Textbox(value=home_refresh_token),
+        gr.Textbox(value=state['details_record_id']),
+        gr.Textbox(value=state['edit_data']),
+        gr.Textbox(value=state['remove_record_id']),
+        gr.Textbox(value=state['download_info']),
+        gr.Textbox(value=state['filter_state']),
+        gr.Textbox(value=get_json_record_data(state['details_record_info_id']))
     ]
 
 

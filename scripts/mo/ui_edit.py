@@ -92,7 +92,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
 
     if errors:
         return [
-            gr.HTML.update(value=styled.alert_danger(errors), visible=True),
+            gr.HTML(value=styled.alert_danger(errors), visible=True),
             back_token
         ]
     else:
@@ -156,7 +156,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             env.storage.add_record(record)
 
         return [
-            gr.HTML.update(visible=False),
+            gr.HTML(visible=False),
             generate_ui_token()
         ]
 
@@ -185,12 +185,12 @@ def _on_id_changed(record_data):
     model_type = '' if record is None else record.model_type.value
 
     if record is None or not record.download_url:
-        download_url = gr.Textbox.update(
+        download_url = gr.Textbox(
             value='',
             label='Download URL:'
         )
     else:
-        download_url = gr.Textbox.update(
+        download_url = gr.Textbox(
             value=record.download_url,
             label="""Download URL: (If URL will be changed - SHA256, MD5 and file location will be erased.
                   Remove file manually or via remove-files only option)"""
@@ -212,7 +212,7 @@ def _on_id_changed(record_data):
     logger.info('Groups loaded: %s', available_groups)
     logger.info('Record groups: %s', record_groups)
     available_groups.sort()
-    groups = gr.Dropdown.update(choices=available_groups, value=record_groups)
+    groups = gr.Dropdown(choices=available_groups, value=record_groups)
 
     if not description:
         description = f'<[[token="{generate_ui_token()}"]]>'
@@ -224,13 +224,13 @@ def _on_id_changed(record_data):
     weight = 1 if record is None else record.weight
 
     return [title, name, model_type, download_url, backup_url, preview_url, url, download_path, download_filename, download_subdir,
-            description, positive_prompts, negative_prompts, groups, available_groups, gr.HTML.update(visible=False),
+            description, positive_prompts, negative_prompts, groups, available_groups, gr.HTML(visible=False),
             sha256, location, _get_bind_location_dropdown_update(model_type, location), rename_filename_checkbox, location, weight]
 
 
 def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     if not model_type_value:
-        return gr.Dropdown.update(
+        return gr.Dropdown(
             visible=False,
             value='None',
             choices=['None']
@@ -239,7 +239,7 @@ def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     model_type = ModelType.by_value(model_type_value)
 
     if model_type == ModelType.OTHER:
-        return gr.Dropdown.update(
+        return gr.Dropdown(
             visible=False,
             value='None',
             choices=['None']
@@ -261,7 +261,7 @@ def _get_bind_location_dropdown_update(model_type_value, current_location: str):
         if model_local_path in choices:
             chosen = model_local_path
 
-    return gr.Dropdown.update(
+    return gr.Dropdown(
         visible=True,
         choices=choices,
         value=chosen,
@@ -291,28 +291,28 @@ def _on_add_groups_button_click(new_groups_str: str, selected_groups, available_
         selected_groups.extend(new_groups)
 
     return [
-        gr.Textbox.update(value=''),
-        gr.Dropdown.update(choices=available_groups, value=selected_groups)
+        gr.Textbox(value=''),
+        gr.Dropdown(choices=available_groups, value=selected_groups)
     ]
 
 
 def _on_local_bind_change(model_file_name, model_type_value):
     if not model_type_value:
-        return gr.Textbox.update(
+        return gr.Textbox(
             value='',
         )
 
     model_type = ModelType.by_value(model_type_value)
     if model_type == ModelType.OTHER:
-        return gr.Textbox.update(
+        return gr.Textbox(
             value='',
         )
     model_dir_path = env.get_model_path(model_type)
     full_path = os.path.join(model_dir_path, model_file_name)
     if os.path.isfile(full_path):
-        return gr.Textbox.update(full_path)
+        return gr.Textbox(full_path)
     else:
-        return gr.Textbox.update('')
+        return gr.Textbox('')
 
 def _on_download_filename_change(rename_filename_checkbox, location, download_filename, current_location):
     if rename_filename_checkbox:
@@ -328,7 +328,7 @@ def _on_rename_filename_checkbox_change(rename_filename_checkbox, location, down
         location_widget_label = "File location"
         location_widget_value = current_location
 
-    location_widget = gr.Textbox.update(label=location_widget_label,
+    location_widget = gr.Textbox(label=location_widget_label,
                                         value=location_widget_value)
 
     return location_widget

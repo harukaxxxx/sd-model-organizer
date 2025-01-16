@@ -13,47 +13,47 @@ def _on_id_change(record_id):
 
     if not record_id:
         return [
-            gr.HTML.update(value='Record is missing.'),
-            gr.Button.update(visible=False),
-            gr.Button.update(visible=False),
-            gr.Button.update(visible=False),
-            gr.Button.update(visible=False)
+            gr.HTML(value='Record is missing.'),
+            gr.Button(visible=False),
+            gr.Button(visible=False),
+            gr.Button(visible=False),
+            gr.Button(visible=False)
         ]
 
     if os.path.isfile(record_id):
         return [
-            gr.HTML.update(
+            gr.HTML(
                 value=styled.alert_danger(f'Are you sure you what to remove "{os.path.basename(record_id)}"?')),
-            gr.Button.update(visible=True),
-            gr.Button.update(visible=False),
-            gr.Button.update(visible=True),
-            gr.Button.update(visible=False)
+            gr.Button(visible=True),
+            gr.Button(visible=False),
+            gr.Button(visible=True),
+            gr.Button(visible=False)
         ]
     else:
         record = env.storage.get_record_by_id(record_id)
         if record is None:
             return [
-                gr.HTML.update(value='Record was not found in database.'),
-                gr.Button.update(visible=False),
-                gr.Button.update(visible=False),
-                gr.Button.update(visible=False),
-                gr.Button.update(visible=False)
+                gr.HTML(value='Record was not found in database.'),
+                gr.Button(visible=False),
+                gr.Button(visible=False),
+                gr.Button(visible=False),
+                gr.Button(visible=False)
             ]
         elif os.path.exists(record.location):
             return [
-                gr.HTML.update(value=styled.alert_danger(f'Are you sure you what to remove "{record.name}"?')),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=True)
+                gr.HTML(value=styled.alert_danger(f'Are you sure you what to remove "{record.name}"?')),
+                gr.Button(visible=True),
+                gr.Button(visible=True),
+                gr.Button(visible=True),
+                gr.Button(visible=True)
             ]
         else:
             return [
-                gr.HTML.update(value=styled.alert_danger(f'Are you sure you what to remove "{record.name}"?')),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=True),
-                gr.Button.update(visible=False),
-                gr.Button.update(visible=False)
+                gr.HTML(value=styled.alert_danger(f'Are you sure you what to remove "{record.name}"?')),
+                gr.Button(visible=True),
+                gr.Button(visible=True),
+                gr.Button(visible=False),
+                gr.Button(visible=False)
             ]
 
 def _on_remove_record_button_click(record_id):

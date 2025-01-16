@@ -20,8 +20,8 @@ def _prepare_data(state_json: str):
 
     return [
         html,
-        gr.Button.update(visible=len(records) > 0),
-        gr.Dropdown.update(value=state['groups'], choices=_get_available_groups())
+        gr.Button(visible=len(records) > 0),
+        gr.Dropdown(value=state['groups'], choices=_get_available_groups())
     ]
 
 
