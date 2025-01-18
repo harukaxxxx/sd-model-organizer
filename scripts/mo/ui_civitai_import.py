@@ -83,8 +83,8 @@ def _on_fetch_url_clicked(url):
     if not re.match(pattern, url) and not url.isdigit():
         return [
             None,
-            gr.HTML.update(value=alert_danger('Invalid Url. The link should be a link to the model page or id.')),
-            gr.Column.update(visible=False),
+            gr.HTML(value=alert_danger('Invalid Url. The link should be a link to the model page or id.')),
+            gr.Column(visible=False),
             *_create_ui_update()
         ]
 
@@ -104,10 +104,10 @@ def _on_fetch_url_clicked(url):
     if not model_id.isdigit():
         return [
             None,
-            gr.HTML.update(value=alert_danger(
+            gr.HTML(value=alert_danger(
                 'Failed to parse model id. Check your input is valid civitai.com model url '
                 'or model id.')),
-            gr.Column.update(visible=False),
+            gr.Column(visible=False),
             *_create_ui_update()
         ]
 
@@ -132,15 +132,15 @@ def _on_fetch_url_clicked(url):
 
         return [
             data_dict,
-            gr.HTML.update(value='' if duplicate_warning =='' else duplicate_warning),
-            gr.Column.update(visible=True),
+            gr.HTML(value='' if duplicate_warning =='' else duplicate_warning),
+            gr.Column(visible=True),
             *_create_ui_update(data_dict=data_dict, selected_version_id=selected_model_version_id)
         ]
     else:
         return [
             None,
-            gr.HTML.update(value=alert_danger(f'Request failed with status code: {response.status_code}')),
-            gr.Column.update(visible=False),
+            gr.HTML(value=alert_danger(f'Request failed with status code: {response.status_code}')),
+            gr.Column(visible=False),
             *_create_ui_update()
         ]
 
@@ -148,19 +148,19 @@ def _on_fetch_url_clicked(url):
 def _create_ui_update(data_dict=None, selected_version=None, selected_version_id=None, selected_file=None) -> list:
     if data_dict is None:
         return [
-            gr.Textbox.update(value=''),
-            gr.Dropdown.update(value=''),
-            gr.Textbox.update(value=''),
-            gr.Dropdown.update(value='', choices=[]),
-            gr.Textbox.update(value=''),
-            gr.Gallery.update(value=None),
-            gr.Textbox.update(value=''),
-            gr.Dropdown.update(value='', choices=[]),
-            gr.Checkbox.update(value=False, visible=False),
-            gr.HTML.update(value='', visible=False),
-            gr.Accordion.update(visible=False),
-            gr.Button.update(visible=False),
-            gr.Button.update(visible=False)
+            gr.Textbox(value=''),
+            gr.Dropdown(value=''),
+            gr.Textbox(value=''),
+            gr.Dropdown(value='', choices=[]),
+            gr.Textbox(value=''),
+            gr.Gallery(value=None),
+            gr.Textbox(value=''),
+            gr.Dropdown(value='', choices=[]),
+            gr.Checkbox(value=False, visible=False),
+            gr.HTML(value='', visible=False),
+            gr.Accordion(visible=False),
+            gr.Button(visible=False),
+            gr.Button(visible=False)
         ]
 
     version = None
@@ -209,17 +209,17 @@ def _create_ui_update(data_dict=None, selected_version=None, selected_version_id
     description = data_dict['description']
 
     return [
-        gr.Textbox.update(value=name),
-        gr.Dropdown.update(value=model_type),
-        gr.Textbox.update(value=tags),
-        gr.Dropdown.update(value=model_version, choices=model_versions),
-        gr.Textbox.update(value=image_url),
-        gr.Gallery.update(version['images']),
-        gr.Dropdown.update(value=file_version, choices=file_versions),
-        gr.Textbox.update(value=prompts),
-        gr.Checkbox.update(value=bool(description), visible=bool(description)),
-        gr.HTML.update(value=data_dict['description'], visible=bool(description)),
-        gr.Accordion.update(visible=bool(description)),
+        gr.Textbox(value=name),
+        gr.Dropdown(value=model_type),
+        gr.Textbox(value=tags),
+        gr.Dropdown(value=model_version, choices=model_versions),
+        gr.Textbox(value=image_url),
+        gr.Gallery(version['images']),
+        gr.Dropdown(value=file_version, choices=file_versions),
+        gr.Textbox(value=prompts),
+        gr.Checkbox(value=bool(description), visible=bool(description)),
+        gr.HTML(value=data_dict['description'], visible=bool(description)),
+        gr.Accordion(visible=bool(description)),
         *_on_model_type_changed(model_type)
     ]
 
@@ -235,8 +235,8 @@ def _on_model_type_changed(model_type_value):
         is_import_visible = False
 
     return [
-        gr.Button.update(visible=is_edit_visible),
-        gr.Button.update(visible=is_import_visible)
+        gr.Button(visible=is_edit_visible),
+        gr.Button(visible=is_import_visible)
     ]
 
 
@@ -320,20 +320,20 @@ def _on_import_clicked(state, import_url, name, model_type_value, tags, model_ve
 
     if isinstance(result, list):
         return [
-            gr.HTML.update(value=alert_danger(result), visible=True),
-            gr.Column.update()
+            gr.HTML(value=alert_danger(result), visible=True),
+            gr.Column()
         ]
     elif isinstance(result, Record):
         env.storage.add_record(result)
         return [
-            gr.HTML.update(value='', visible=False),
-            gr.Column.update(visible=False)
+            gr.HTML(value='', visible=False),
+            gr.Column(visible=False)
         ]
     else:
         return [
-            gr.HTML.update(value=alert_danger('Unpredicted behaviour, try to reload page and fill data again'),
+            gr.HTML(value=alert_danger('Unpredicted behaviour, try to reload page and fill data again'),
                            visible=True),
-            gr.Column.update()
+            gr.Column()
         ]
 
 
@@ -354,24 +354,24 @@ def _on_edit_clicked(state, import_url, name, model_type_value, tags, model_vers
 
     if isinstance(result, list):
         return [
-            gr.HTML.update(value=alert_danger(result), visible=True),
-            gr.Column.update(),
-            gr.Textbox.update()
+            gr.HTML(value=alert_danger(result), visible=True),
+            gr.Column(),
+            gr.Textbox()
         ]
     elif isinstance(result, Record):
         record_dict = map_record_to_dict(result)
         record_json = json.dumps(record_dict)
         return [
-            gr.HTML.update(value='', visible=False),
-            gr.Column.update(visible=False),
-            gr.Textbox.update(value=record_json)
+            gr.HTML(value='', visible=False),
+            gr.Column(visible=False),
+            gr.Textbox(value=record_json)
         ]
     else:
         return [
-            gr.HTML.update(value=alert_danger('Unpredicted behaviour, try to reload page and fill data again'),
+            gr.HTML(value=alert_danger('Unpredicted behaviour, try to reload page and fill data again'),
                            visible=True),
-            gr.Column.update(),
-            gr.Textbox.update()
+            gr.Column(),
+            gr.Textbox()
         ]
 
 
@@ -389,7 +389,7 @@ def civitai_import_ui_block():
         gr.Markdown()
         gr.Markdown()
         gr.Markdown()
-        fetch_url_button = gr.Button('Fetch URL')
+        fetch_url_button = gr.Button('🌐 Fetch URL')
 
     fetch_result_html = gr.HTML('')
     import_model_state = gr.State(None)

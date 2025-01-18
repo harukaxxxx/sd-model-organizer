@@ -50,7 +50,7 @@ def _on_local_files_scan_click():
     result.extend(search_in_dir(ModelType.EMBEDDING))
     result.extend(search_in_dir(ModelType.LYCORIS))
 
-    return gr.JSON.update(value=json.dumps(result))
+    return gr.JSON(value=json.dumps(result))
 
 
 def _ui_local_files():
@@ -66,8 +66,8 @@ def _ui_local_files():
 def _on_read_hash_click():
     cache = read_hash_cache()
     return [
-        gr.JSON.update(value=json.dumps(cache)),
-        gr.Button.update(visible=False)
+        gr.JSON(value=json.dumps(cache)),
+        gr.Button(visible=False)
     ]
 
 
@@ -194,8 +194,8 @@ def _on_calculate_hash_click():
     result.extend(calc_in_dir(ModelType.LYCORIS))
 
     return [
-        gr.JSON.update(value=json.dumps(result)),
-        gr.Button.update(visible=True)
+        gr.JSON(value=json.dumps(result)),
+        gr.Button(visible=True)
     ]
 
 
@@ -234,8 +234,8 @@ def _on_compare_hash_click():
     result.extend(search_in_dir(ModelType.LYCORIS))
 
     return [
-        gr.JSON.update(value=json.dumps(result)),
-        gr.Button.update(visible=False)
+        gr.JSON(value=json.dumps(result)),
+        gr.Button(visible=False)
     ]
 
 

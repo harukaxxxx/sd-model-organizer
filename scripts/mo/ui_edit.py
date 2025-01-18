@@ -29,7 +29,7 @@ def is_filename_with_extension(download_filename):
     filename, extension = os.path.splitext(download_filename)
     return bool(filename and extension)
 
-def _on_description_output_changed(record_data, name: str, model_type_value: str, download_url: str, url: str,
+def _on_description_output_changed(record_data, name: str, model_type_value: str, download_url: str, backup_url: str, url: str,
                                    download_path: str, download_filename: str, rename_filename: bool, download_subdir: str, preview_url: str,
                                    description_output: str, positive_prompts: str, negative_prompts: str,
                                    groups, back_token: str, sha256_state, location, current_location, promptweight: float):
@@ -48,6 +48,12 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             errors.append('Download URL is incorrect')
         elif not DownloadManager.instance().check_url_can_be_handled(download_url):
             errors.append(f"Model can't be downloaded from URL: {download_url}")
+
+    if not is_blank(backup_url):
+        if not is_valid_url(backup_url):
+            errors.append('Backup URL is incorrect')
+        elif not DownloadManager.instance().check_url_can_be_handled(backup_url):
+            errors.append(f"Model can't be downloaded from backup URL: {backup_url}")
 
     if not is_blank(url) and not is_valid_url(url):
         errors.append('Model URL is incorrect.')
@@ -86,7 +92,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
 
     if errors:
         return [
-            gr.HTML.update(value=styled.alert_danger(errors), visible=True),
+            gr.HTML(value=styled.alert_danger(errors), visible=True),
             back_token
         ]
     else:
@@ -100,6 +106,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             description = description_output
 
         download_url = download_url.strip()
+        backup_url = backup_url.strip()
         sha256_hash = ''
 
         old_record = None
@@ -124,6 +131,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             name=name.strip(),
             model_type=model_type,
             download_url=download_url,
+            backup_url=backup_url,
             url=url.strip(),
             download_path=download_path.strip(),
             download_filename=download_filename.strip(),
@@ -140,7 +148,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             weight=promptweight
         )
 
-        logger.info(f'record to save: {record}')
+        logger.info('record to save: %s', record)
 
         if record_id is not None and record_id:
             env.storage.update_record(record)
@@ -148,7 +156,7 @@ def _on_description_output_changed(record_data, name: str, model_type_value: str
             env.storage.add_record(record)
 
         return [
-            gr.HTML.update(visible=False),
+            gr.HTML(visible=False),
             generate_ui_token()
         ]
 
@@ -177,17 +185,17 @@ def _on_id_changed(record_data):
     model_type = '' if record is None else record.model_type.value
 
     if record is None or not record.download_url:
-        download_url = gr.Textbox.update(
+        download_url = gr.Textbox(
             value='',
             label='Download URL:'
         )
     else:
-        download_url = gr.Textbox.update(
+        download_url = gr.Textbox(
             value=record.download_url,
             label="""Download URL: (If URL will be changed - SHA256, MD5 and file location will be erased.
                   Remove file manually or via remove-files only option)"""
         )
-
+    backup_url = '' if record is None else record.backup_url
     preview_url = '' if record is None else record.preview_url
     url = '' if record is None else record.url
     download_path = '' if record is None else record.download_path
@@ -204,7 +212,7 @@ def _on_id_changed(record_data):
     logger.info('Groups loaded: %s', available_groups)
     logger.info('Record groups: %s', record_groups)
     available_groups.sort()
-    groups = gr.Dropdown.update(choices=available_groups, value=record_groups)
+    groups = gr.Dropdown(choices=available_groups, value=record_groups)
 
     if not description:
         description = f'<[[token="{generate_ui_token()}"]]>'
@@ -215,14 +223,14 @@ def _on_id_changed(record_data):
 
     weight = 1 if record is None else record.weight
 
-    return [title, name, model_type, download_url, preview_url, url, download_path, download_filename, download_subdir,
-            description, positive_prompts, negative_prompts, groups, available_groups, gr.HTML.update(visible=False),
+    return [title, name, model_type, download_url, backup_url, preview_url, url, download_path, download_filename, download_subdir,
+            description, positive_prompts, negative_prompts, groups, available_groups, gr.HTML(visible=False),
             sha256, location, _get_bind_location_dropdown_update(model_type, location), rename_filename_checkbox, location, weight]
 
 
 def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     if not model_type_value:
-        return gr.Dropdown.update(
+        return gr.Dropdown(
             visible=False,
             value='None',
             choices=['None']
@@ -231,7 +239,7 @@ def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     model_type = ModelType.by_value(model_type_value)
 
     if model_type == ModelType.OTHER:
-        return gr.Dropdown.update(
+        return gr.Dropdown(
             visible=False,
             value='None',
             choices=['None']
@@ -249,11 +257,11 @@ def _get_bind_location_dropdown_update(model_type_value, current_location: str):
     chosen = 'None'
     if current_location:
         model_local_path = current_location.replace(env.get_model_path(model_type) + '/', '')
-        model_local_path = model_local_path.replace(lookup_dir, '') 
+        model_local_path = model_local_path.replace(lookup_dir, '')
         if model_local_path in choices:
             chosen = model_local_path
 
-    return gr.Dropdown.update(
+    return gr.Dropdown(
         visible=True,
         choices=choices,
         value=chosen,
@@ -283,28 +291,28 @@ def _on_add_groups_button_click(new_groups_str: str, selected_groups, available_
         selected_groups.extend(new_groups)
 
     return [
-        gr.Textbox.update(value=''),
-        gr.Dropdown.update(choices=available_groups, value=selected_groups)
+        gr.Textbox(value=''),
+        gr.Dropdown(choices=available_groups, value=selected_groups)
     ]
 
 
 def _on_local_bind_change(model_file_name, model_type_value):
     if not model_type_value:
-        return gr.Textbox.update(
+        return gr.Textbox(
             value='',
         )
 
     model_type = ModelType.by_value(model_type_value)
     if model_type == ModelType.OTHER:
-        return gr.Textbox.update(
+        return gr.Textbox(
             value='',
         )
     model_dir_path = env.get_model_path(model_type)
     full_path = os.path.join(model_dir_path, model_file_name)
     if os.path.isfile(full_path):
-        return gr.Textbox.update(full_path)
+        return gr.Textbox(full_path)
     else:
-        return gr.Textbox.update('')
+        return gr.Textbox('')
 
 def _on_download_filename_change(rename_filename_checkbox, location, download_filename, current_location):
     if rename_filename_checkbox:
@@ -320,7 +328,7 @@ def _on_rename_filename_checkbox_change(rename_filename_checkbox, location, down
         location_widget_label = "File location"
         location_widget_value = current_location
 
-    location_widget = gr.Textbox.update(label=location_widget_label,
+    location_widget = gr.Textbox(label=location_widget_label,
                                         value=location_widget_value)
 
     return location_widget
@@ -342,7 +350,7 @@ def edit_ui_block():
 
     with gr.Row():
         with gr.Column():
-            cancel_button = gr.Button('Cancel')
+            cancel_button = gr.Button('❎ Cancel')
             name_widget = gr.Textbox(label='Name:',
                                      value='',
                                      max_lines=1,
@@ -358,6 +366,10 @@ def edit_ui_block():
                                              value='',
                                              max_lines=1,
                                              info='Link to the model file (Optional)')
+            with gr.Accordion(label='Backup URL (Optional)', open=False):
+                backup_url_widget = gr.Textbox(label='Download from backup URL if download URL is unavailable',
+                                                 value='',
+                                                 max_lines=1)
             preview_url_widget = gr.Textbox(label='Preview image URL:',
                                             value='',
                                             max_lines=1,
@@ -369,7 +381,8 @@ def edit_ui_block():
                                     info='Link to the model page (Optional)')
 
         with gr.Column():
-            save_widget = gr.Button('Save', elem_classes='mo-alert-primary')
+            save_widget = gr.Button('💾 Save')
+            # save_widget = gr.Button('💾 Save', elem_classes='mo-alert-primary')
 
             error_widget = gr.HTML(visible=False)
             groups_widget = gr.Dropdown(label='Groups',
@@ -384,7 +397,7 @@ def edit_ui_block():
                                                 max_lines=1,
                                                 info='Type comma-separated group names',
                                                 elem_id='mo-add-groups-box')
-                    add_groups_button = gr.Button('Add Group')
+                    add_groups_button = gr.Button('➕ Add Group')
 
             location_widget = gr.Textbox(label="File location",
                                          info="Local file location path. Not editable.",
@@ -422,10 +435,10 @@ def edit_ui_block():
                                                      value='',
                                                      max_lines=20,
                                                      info='Model positive prompts (Optional)')
-                prompt_weight_slider = gr.Slider(label='Preferred weight', 
-                                                     info="Default value", 
-                                                     minimum=0.0, 
-                                                     maximum=2.0, 
+                prompt_weight_slider = gr.Slider(label='Preferred weight',
+                                                     info="Default value",
+                                                     minimum=0.0,
+                                                     maximum=2.0,
                                                      step=0.01,
                                                      elem_id='mo-edit-prompt-weight')
                 negative_prompts_widget = gr.Textbox(label='Negative prompts:',
@@ -452,7 +465,7 @@ def edit_ui_block():
 
     description_output_widget.change(_on_description_output_changed,
                                      inputs=[edit_id_box, name_widget, model_type_widget,
-                                             download_url_widget, url_widget,
+                                             download_url_widget, backup_url_widget, url_widget,
                                              download_path_widget, download_filename_widget, rename_filename_checkbox_widget, download_subdir_widget,
                                              preview_url_widget, description_output_widget, positive_prompts_widget,
                                              negative_prompts_widget, groups_widget, edit_back_box,
@@ -461,7 +474,7 @@ def edit_ui_block():
 
     edit_id_box.change(_on_id_changed,
                        inputs=edit_id_box,
-                       outputs=[title_widget, name_widget, model_type_widget, download_url_widget,
+                       outputs=[title_widget, name_widget, model_type_widget, download_url_widget, backup_url_widget,
                                 preview_url_widget, url_widget, download_path_widget, download_filename_widget,
                                 download_subdir_widget, description_input_widget, positive_prompts_widget,
                                 negative_prompts_widget, groups_widget, available_groups_state, error_widget,
