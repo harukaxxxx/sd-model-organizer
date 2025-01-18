@@ -333,6 +333,35 @@ def _on_rename_filename_checkbox_change(rename_filename_checkbox, location, down
 
     return location_widget
 
+def _on_magic_button_widget_click(location, current_location, model_type_value):
+    model_type = ModelType.by_value(model_type_value)
+    if location is "":
+        if model_type_value == 'Checkpoint':
+            model_folder = 'ckpt'
+        elif model_type_value == 'Checkpoint':
+            model_folder = 'lora'
+        download_url=f'http://192.168.1.200/sd-db/{model_folder}/'
+        preview_url=f'http://sd-db.makinoworks.com/{model_folder}/'
+        return download_url, preview_url
+
+    lookup_dir = os.path.join(env.get_model_path(model_type), '')
+
+    parent_dir = os.path.dirname(os.path.dirname(lookup_dir))
+    download_url = location.replace(parent_dir, 'http://192.168.1.200/sd-db').replace('\\', '/')
+
+    if find_preview_file(location):
+        preview_dir = find_preview_file(location)
+        preview_url = preview_dir.replace(parent_dir, 'http://sd-db.makinoworks.com').replace('\\', '/')
+
+        return download_url, preview_url
+    elif find_preview_file(current_location) is not None:
+        preview_dir = find_preview_file(current_location)
+        preview_ext = os.path.splitext(preview_dir)[1]
+        download_ext = os.path.splitext(location)[1]
+        preview_url = location.replace(parent_dir, 'http://sd-db.makinoworks.com').replace('\\', '/').replace(download_ext, preview_ext)
+
+        return download_url, preview_url
+
 def edit_ui_block():
     edit_id_box = gr.Textbox(label='edit_id_box',
                              elem_classes='mo-alert-warning',
@@ -379,6 +408,7 @@ def edit_ui_block():
                                     value='',
                                     max_lines=1,
                                     info='Link to the model page (Optional)')
+            magic_button_widget = gr.Button('Magic')
 
         with gr.Column():
             save_widget = gr.Button('💾 Save')
@@ -422,6 +452,7 @@ def edit_ui_block():
                 rename_filename_checkbox_widget = gr.Checkbox(label='Rename local filename if download filename is presented.',
                                                               value=False)
                 current_location_widget = gr.Textbox(label="Current File location",
+                                                     value='',
                                                      info="Local file location path. Not editable.",
                                                      interactive=False,
                                                      visible=False)
@@ -496,7 +527,9 @@ def edit_ui_block():
     location_bind_widget.change(_on_local_bind_change,
                                 inputs=[location_bind_widget, model_type_widget],
                                 outputs=location_widget)
-
+    magic_button_widget.click(_on_magic_button_widget_click,
+                              inputs=[location_widget, current_location_widget, model_type_widget],
+                              outputs=[download_url_widget, preview_url_widget])
     save_widget.click(fn=None, _js='handleRecordSave')
 
     add_groups_button.click(_on_add_groups_button_click,
