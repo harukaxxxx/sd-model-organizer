@@ -12,13 +12,13 @@ from scripts.mo.ui_civitai_import import civitai_import_ui_block
 
 def _on_import_file_change(import_file):
     if import_file is None or not import_file or not os.path.exists(import_file.name):
-        return gr.HTML.update('')
+        return gr.HTML('')
 
     with open(import_file.name, 'r') as f:
         records_dict_list = json.load(f)
 
     if len(records_dict_list) == 0:
-        return gr.HTML.update('Nothing to import')
+        return gr.HTML('Nothing to import')
     else:
         records_imported = []
         for record_dict in records_dict_list:
@@ -30,7 +30,7 @@ def _on_import_file_change(import_file):
         for name in records_imported:
             output += '<br>'
             output += name
-        return gr.HTML.update(value=output)
+        return gr.HTML(value=output)
 
 
 def _on_export_click(filter_state_json, export_option):
@@ -55,9 +55,9 @@ def _on_export_click(filter_state_json, export_option):
         with open(path, 'w') as f:
             json.dump(records_dict_list, f)
 
-        return gr.File.update(value=path, label='Exported, Click "Download"', visible=True)
+        return gr.File(value=path, label='Exported, Click "Download"', visible=True)
     else:
-        return gr.File.update(visible=False)
+        return gr.File(visible=False)
 
 
 def import_export_ui_block():
