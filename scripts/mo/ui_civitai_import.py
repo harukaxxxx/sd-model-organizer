@@ -376,7 +376,8 @@ def _on_edit_clicked(state, import_url, name, model_type_value, tags, model_vers
 
 
 def _on_gallery_select(data: gr.SelectData):
-    return data.value
+    image_url = data.value['image']['url']
+    return image_url
 
 
 def civitai_import_ui_block():
