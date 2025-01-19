@@ -251,8 +251,7 @@ def _create_top_fields_dict(record: Record) -> dict:
 
 
 def _details_field_row(title: str, field: str, is_even: bool) -> str:
-    highlight = 'mo-details-row-even' if is_even else 'mo-details-row-odd'
-    content = f'<div class="mo-details-row {highlight}">'
+    content = f'<div class="mo-details-row">'
 
     content += '<div class="mo-details-sub-col mo-details-sub-col-header">'
     content += f'<span class="mo-text-header">{title}:</span>'

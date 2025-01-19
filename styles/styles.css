@@ -235,14 +235,6 @@
     max-width: none
 }
 
-.mo-details-row-odd {
-    background-color: var(--mo-block-highlight-odd);
-}
-
-.mo-details-row-even {
-    background-color: var(--mo-block-highlight-even);
-}
-
 .mo-details-row-positive {
     background-color: var(--mo-block-highlight-positive);
 }
