@@ -59,6 +59,27 @@ def _limit_card_name(text):
         return text
 
 
+def _check_url_path_status(record) -> str:
+    """
+    Check download and preview URL status for a record.
+    Returns a combined status string for both download and preview URLs.
+    """
+
+    def _check_url(url, base_url, local_path):
+        if url.startswith(base_url):
+            return "✅" if os.path.exists(url.replace(base_url, local_path)) else "❌"
+        return ""
+
+    lan_url = "http://192.168.1.200/sd-db"
+    wan_url = "http://sd-db.makinoworks.com"
+    local_path = r'\\MWDSplus\web\sd-webui-database'
+
+    download_status = _check_url(record.download_url, lan_url, local_path)
+    preview_status = _check_url(record.preview_url, wan_url, local_path)
+
+    return f'{download_status}{preview_status} ' if download_status and preview_status != "" else ""
+
+
 def _model_type_css_class(model_type: ModelType) -> str:
     if model_type == ModelType.CHECKPOINT:
         css_class = 'mo-badge-checkpoint'
@@ -368,21 +389,7 @@ def records_cards(records: List) -> str:
 
         content += '<div class="mo-card-content-top">'
 
-        download_url_check = record.download_url.startswith("http://192.168.1.200/sd-db")
-        if download_url_check:
-            download_path = record.download_url.replace('http://192.168.1.200/sd-db', r'\\MWDSplus\web\sd-webui-database')
-            download_url_check_string = "✅" if os.path.exists(download_path) else "❎"
-        else:
-            download_url_check_string = "❎"
-
-        preview_url_check = record.preview_url.startswith("http://sd-db.makinoworks.com")
-        if preview_url_check:
-            preview_path = record.preview_url.replace('http://sd-db.makinoworks.com', r'\\MWDSplus\web\sd-webui-database')
-            preview_url_check_string = "✅" if os.path.exists(preview_path) else "❎"
-        else:
-            preview_url_check_string = "❎"
-        url_check = f'{download_url_check_string}{preview_url_check_string} ' if download_url_check else ""
-
+        url_check = _check_url_path_status(record)
         content += f'<div class="mo-card-text-left"><span class="mo-badge {_model_type_css_class(record.model_type)}"' \
                    f'>{url_check}{record.model_type.value}</span></div>'
         content += '</div>'
